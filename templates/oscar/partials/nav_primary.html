@@ -1,0 +1,18 @@
+{% load currency_filters %}
+{% load i18n %}
+
+<div class="navbar primary navbar-static-top navbar-inverse" style="box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2), 0 2px 1px 0 rgba(0, 0, 0, 0.19); border:1px solid; border-color: #fafafa; ">
+    <div class="container-fluid" >
+		
+		<ul class="nav nav-tabs">
+			<li {% if active_tab == 'blog' %} class="active"{% endif %}><a href="{% url 'article:article' %}">Article</a></li>
+			<li {% if active_tab == 'idea' %} class="active"{% endif %}>
+				<a href="{% url 'catalogue:index' %}">Idea</a>
+			</li>
+			<li {% if active_tab == 'all_vendors' %} class="active"{% endif %}><a href="{% url 'partner:vendor-list' %}">Vendor</a></li>
+			<li {% if active_tab == 'contact_us' %} class="active"{% endif %}><a href="{% url 'contact:contactus' %}">Contact Us</a></li>
+		</ul>
+       
+    </div>
+</div>
+

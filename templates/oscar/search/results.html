@@ -1,0 +1,130 @@
+{% extends "catalogue/browse.html" %}
+
+{% load currency_filters %}
+{% load thumbnail %}
+{% load product_tags %}
+{% load i18n %}
+
+{% block title %}
+    "{{ query }}" | {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{ homepage_url }}">{% trans "Home" %}</a>
+        </li>
+        <li>
+            {% trans "Search" %}
+        </li>
+        <li class="active">"{{ query }}"</li>
+    </ul>
+{% endblock %}
+
+
+
+{% block headertext %}
+    {% blocktrans with q=query %}
+        Products matching "{{ q }}"
+    {% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+    <form method="get" action="." class="form-horizontal">
+        {# Render other search params as hidden inputs #}
+        {% for value in selected_facets %}
+            <input type="hidden" name="selected_facets" value="{{ value }}" />
+        {% endfor %}
+        <input type="hidden" name="q" value="{{ search_form.q.value }}" />
+
+        {% if paginator.count %}
+            {% if paginator.num_pages > 1 %}
+                {% blocktrans with start=page.start_index end=page.end_index num_results=paginator.count %}
+                    Found <strong>{{ num_results }}</strong> results, showing <strong>{{ start }}</strong> to <strong>{{ end }}</strong>.
+                {% endblocktrans %}
+            {% else %}
+                {% blocktrans count num_results=paginator.count %}
+                    Found <strong>{{ num_results }}</strong> result.
+                {% plural %}
+                    Found <strong>{{ num_results }}</strong> results.
+                {% endblocktrans %}
+            {% endif %}
+            <div class="pull-right">
+                {% include "partials/form_field.html" with field=search_form.sort_by %}
+            </div>
+        {% else %}
+            <p>
+                {% trans "Found <strong>0</strong> results." %}
+                {% if suggestion %}
+                    {% url 'search:search' as search_url %}
+                    {% blocktrans %}
+                        Did you mean <a href="{{ search_url }}?q={{ suggestion }}">"{{ suggestion }}"</a>?
+                    {% endblocktrans %}
+                {% endif %}
+            </p>
+        {% endif %}
+    </form>
+
+    {% if page.object_list %}
+        <section>
+            <div>
+                <ol class="row">
+					<div class="grid" id="grid-masonry">
+					
+                    {% for result in page.object_list %}
+						{% with product=result.object %}
+							<div class="grid-item" name="{{product.color_name}}{{product.theme_name}}" >
+							{% with image=product.primary_image %}
+								{% thumbnail image.original "x155" upscale=False as thumb %}
+
+
+									<a><img src="{{ thumb.url }}" alt="{{ product.get_title }}" class="thumbnail" style="height: 100%; width: 100%; object-fit: contain; margin-bottom:0px; cursor:pointer;" data-toggle="modal" data-target="#myGallery_{{forloop.counter}}"></a>
+									
+									
+									{% comment %}
+									<a href="{{ product.get_absolute_url }}"><img src="{{ thumb.url }}" alt="{{ product.get_title }}" class="thumbnail" style='height: 100%; width: 100%; object-fit: contain; margin-bottom:0px;'></a>
+									{% endcomment %}
+									{% include "partials/project_modal.html" %}
+									
+								{% endthumbnail %}
+								{% endwith %}
+								<div class="grid-height">
+									<div class="company-logo col-sm-3">
+											{% if product.company.company_logo %}
+											<a href="{{ product.company.get_absolute_url }}">
+												<img class="img-prof-sm" src="{{product.company.company_logo.url}}" style="margin-top:20%;">	
+											</a>
+											{% endif %}
+													
+									</div>
+									<div class="company-desc col-sm-9" href="{{ product.company.get_absolute_url }}">
+										<h5 class="masonry-h5">{{product.company.company_name}}</h5>
+										<h6 class="masonry-h6">{{product.company.description}}</h6>
+										<h6 class="masonry-h6">{{product.company.city.name }},{{product.company.city.country.code}}</h6>
+									</div>
+								</div>								
+							
+						</div>
+						{% endwith %}
+						
+                    {% endfor %}
+					
+					</div>
+                </ol>
+                {% include "partials/pagination.html" with page_obj=page %}
+            </div>
+        </section>
+    {% endif %}
+
+
+{% endblock %}
+
+	
+
+
+
+
+{% block onbodyload %}
+    {{ block.super }}
+    oscar.search.init();
+{% endblock %}

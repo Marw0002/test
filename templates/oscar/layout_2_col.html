@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% load staticfiles %}
+
+{% comment %}
+Keep the same header and footer as the standard layout template but override the 
+main content area to split it into a sidebar and a content block
+{% endcomment %}
+{% block content_wrapper %}
+<div class="container-fluid page" style="padding:0px;">
+    <div class="page_inner" >
+
+			<div class="row" style="margin:0px;">
+			
+			<span class="fa fa-bars" id="filterbar" onclick="openNav()"></span>
+			
+            <aside class=" sidebar col-lg-3" id="mySidenav" >
+			<button type="button" class="close hidden-md hidden-lg" onclick="closeNav()" title="Close"> <span class="glyphicon glyphicon-remove"></span></button>
+				<div>
+                {% block column_left %}{% endblock %}
+				</div>
+            </aside>
+			
+            <div class="col-md-9" id="idea-content">
+                {% block content %}{% endblock %}
+            </div>
+
+        </div><!-- /row -->
+    </div><!-- /page_inner -->
+</div><!-- /container-fluid -->
+
+
+{% endblock %}
+
+
+
+

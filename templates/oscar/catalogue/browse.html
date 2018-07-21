@@ -1,0 +1,165 @@
+{% extends "layout_2_col.html"%}
+
+{% load staticfiles %}
+{% load category_tags %}
+{% load product_tags %}
+{% load thumbnail %}
+{% load i18n %}
+
+{% block title %}
+    {% if summary %}{{ summary }} |{% endif %} {{ block.super }}
+{% endblock %}
+
+{% block canonical_url %}{% url 'catalogue:index' %}{% endblock %}
+
+{% block headertext %}{{ summary }}{% endblock %}
+
+{% block column_left %}
+	{% if categories %}
+		
+			<div style="border-bottom:2px solid; border-bottom-color: #dfdfdf; padding-top:5%; padding-left:0;">
+				<ul style="line-height:200%; margin-left:0; padding:0; margin-bottom:5%;" >
+					{% for category in categories %}
+						<li style="list-style-type:none;">
+							<a href="{{category.get_absolute_url}}">
+							{{category.name}}
+						</li>
+					{% endfor %}
+						<li style="list-style-type:none;">
+							<a href="{% url 'catalogue:index' %}">
+							All Categories
+						</li>
+				</ul>
+			</div>
+		
+	{% endif %}
+	<div class="parent-multiselect" id="filters">
+		<div class="multiselect" style="height:100%; width:100%;">
+		{% if themes %}
+			{% for theme in themes %}
+				<a><input type="checkbox" class="checkboxall" name="{{theme.name}}" value=".{{theme.name}}"/> {{theme.name}}</a>
+				</br>
+			{% endfor %}
+		{% endif %}
+		</div>
+		<div class="multiselect" style="height:6em; width:100%; display:grid;   grid-template-columns: 10% 10% 10% 10% 10% 10% 10% 10% 10%; grid-gap:0;">
+		{% if colors %}
+			{% for colorcolor in colors %}
+				<label class="color-box" title="{{colorcolor.name}}">
+					<input type="checkbox" class="checkboxall" value=".{{colorcolor.name}}" >
+					<span class="checkmark" id="chkbox-{{colorcolor.name}}"></span>
+				</label>
+			{% endfor %}
+		{% endif %}
+		</div>
+	</div>			
+	
+{% endblock %}
+
+{% block content %}
+
+    <form method="get" class="form-horizontal">
+        {# Render other search params as hidden inputs #}
+        {% for value in selected_facets %}
+            <input type="hidden" name="selected_facets" value="{{ value }}" />
+        {% endfor %}
+        <input type="hidden" name="q" value="{{ search_form.q.value|default_if_none:"" }}" />
+		
+		{% comment %}
+        {% if paginator.count %}
+            {% if paginator.num_pages > 1 %}
+                {% blocktrans with start=page_obj.start_index end=page_obj.end_index count num_results=paginator.count %}
+                    <strong>{{ num_results }}</strong> result - showing <strong>{{ start }}</strong> to <strong>{{ end }}</strong>.
+                {% plural %}
+                    <strong>{{ num_results }}</strong> results - showing <strong>{{ start }}</strong> to <strong>{{ end }}</strong>.
+                {% endblocktrans %}
+            {% else %}
+                {% blocktrans count num_results=paginator.count %}
+                    <strong>{{ num_results }}</strong> result.
+                {% plural %}
+                    <strong>{{ num_results }}</strong> results.
+                {% endblocktrans %}
+            {% endif %}
+            {% if form %}
+                <div class="pull-right">
+                    {% include "partials/form_field.html" with field=form.sort_by %}
+                </div>
+            {% endif %}
+        {% else %}
+            <p>
+                {% trans "<strong>0</strong> results." %}
+            </p>
+        {% endif %}
+		{% endcomment %}
+    </form>
+	
+	{% if products %}
+        <section>
+            <div >
+                <ol class="row" >
+					
+					<div class="grid" id="grid-masonry">
+						{% for product in products %}
+						<div class='grid-item {{product.color.all|join:" "}} {{product.theme.all|join:" "}} ' name="{{product.color_name}}{{product.theme_name}}" >
+
+								{% with image=product.primary_image %}
+								{% thumbnail image.original "x155" upscale=False as thumb %}
+									
+									<div class="hidden-md hidden-lg">
+									<a href="{{ product.get_absolute_url }}"><img src="{{ thumb.url }}" alt="{{ image.caption }}" class="thumbnail" style="height: 100%; width: 100%; object-fit: contain; margin-bottom:0px; cursor:pointer;"></a>
+									</div>
+									
+									<div class="hidden-sm hidden-xs">
+									<a><img src="{{ thumb.url }}" alt="{{ image.caption }}" class="thumbnail" style="height: 100%; width: 100%; object-fit: contain; margin-bottom:0px; cursor:pointer;" data-toggle="modal" data-target="#myGallery_{{forloop.counter}}"></a>
+									
+									{% include "partials/project_modal.html" %}
+									</div>
+								{% endthumbnail %}
+								{% endwith %}
+								<div class="grid-height">
+									<div class="company-logo col-sm-3 hidden-sm hidden-xs">
+											{% if product.company.company_logo %}
+											<a href="{{ product.company.get_absolute_url }}">
+												<img class="img-prof-sm" src="{{product.company.company_logo.url}}" style="margin-top:20%;">	
+											</a>
+											{% endif %}		
+									</div>
+									<div class="company-desc col-xs-10 col-md-7" href="{{ product.company.get_absolute_url }}">
+										<h6 class="h6-black">by </h6> <h5 class="masonry-h5">{{product.company.company_name}}</h5>
+										<h6 class="masonry-h6 h6-inline hidden-md hidden-lg"> - </h6>
+										<h6 class="masonry-h6 h6-inline hidden-md hidden-lg ">{{product.company.description}}</h6>
+										<h6 class="masonry-h6 hidden-xs hidden-sm">{{product.company.description|truncatechars:18}}</h6>
+										<h6 class="masonry-h6">{{product.company.city.name }},{{product.company.city.country.code}}</h6>
+									</div>
+									{% if product.budget %}
+									<div class="col-xs-2">
+										<h5 class="h5-budget">{{product.budget}}</h5>
+									</div>
+									{% endif %}
+									<div class="bottomright" >
+										<a href="{{ product.company.get_contact_url }}" >
+										<i class="fa fa-envelope-o"></i>
+										</a>
+									</div>
+								</div>	
+						</div>
+						{% endfor %}
+					</div>
+                </ol>
+                {% include "partials/pagination.html" %}
+            </div>
+        </section>
+    {% else %}
+        <p class="nonefound">{% trans "No products found." %}</p>
+    {% endif %}
+	
+
+
+{% endblock content %}
+
+{% block onbodyload %}
+    {{ block.super }}
+    oscar.search.init();
+{% endblock %}
+
+	

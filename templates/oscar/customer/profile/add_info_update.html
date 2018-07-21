@@ -1,0 +1,72 @@
+{% extends "customer/baseaccountpage.html" %}
+
+{% load i18n %}
+
+{% block tabcontent %}
+
+<form action="" method="POST">{% csrf_token %}
+    <div class="section">
+        {{form.as_p }}
+    </div>
+    <h2>Todo Items</h2>
+    {{ formset.management_form }}
+    {% for form in formset %}
+    <div class="item">
+      {{ form.as_p }}
+      <p style=""><a class="delete" href="#">Delete</a></p>
+    </div>
+    {% endfor %}
+    <p><a id="add" href="#">Add another item</a></p>
+    <input type="submit" value=" Submit " />
+</form>
+
+
+{% comment %}
+    <table class="table table-striped table-bordered">
+        <tbody>
+
+
+<form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+{{ form.as_p }}
+<button type="submit">{% trans 'Submit' %}</button>
+</form>
+			
+
+
+        </tbody>
+    </table>
+
+
+<form class="form-horizontal" method="GET" action="">
+
+{{ formset.management_form }}
+{{ formset.non_form_errors }}
+{% for form in formset %}
+<div class="row form-row">
+    <div class="col-sm-4">
+        <div class="input-group">
+			{{form.name}}
+            {{form.as_p}}
+            {# used when the form is submitted with error #}
+            {# if value of name field exists then show remove icon else add icon #}
+            {# if it is last form then display plus sign #}
+            {% if forloop.counter != last_form_counter %}
+                <span class="input-group-btn"><button class="btn btn-danger remove-form-row"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button></span>
+            {% else %}
+                <span class="input-group-btn"><button class="btn btn-success add-form-row"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button></span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+</form>
+
+
+{% endcomment %}
+
+
+
+
+
+
+{% endblock %}

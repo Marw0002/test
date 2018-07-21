@@ -1,0 +1,53 @@
+{% extends "customer/baseaccountpage.html" %}
+
+{% load i18n %}
+
+{% block tabcontent %}
+
+		<h2>Company Info</h2>
+		
+		{% if user.company.company_logo %}
+	    <a>
+            <img src="{{user.company.company_logo.url}}" class="img-prof-md">	
+        </a>
+		{% endif %}
+    <table class="table table-striped table-bordered" style="margin-top:2%;">
+        <tbody>
+            <tr>
+                <th>{% trans 'Company Name' %}</th>
+                <td>{{ user.company.company_name }}</td>
+            </tr>
+			<tr>
+                <th>{% trans 'Services Offered' %}</th>
+                <td>{{ user.company.description }}</td>
+            </tr>
+			<tr>
+                <th>{% trans 'Location' %}</th>
+                <td>{{ user.company.city.name }}, {{user.company.city.country.code}}</td>
+            </tr>
+			<tr>
+                <th>{% trans 'Email Address' %}</th>
+                <td>{{ user.company.company_email }}</td>
+            </tr>
+			<tr>
+                <th>{% trans 'Contact Number' %}</th>
+                <td>{{ user.company.contact }}</td>
+            </tr>
+			<tr>
+                <th>{% trans 'Homepage' %}</th>
+                <td>{{ user.company.websiteadd }}</td>
+            </tr>
+			<tr>
+                <th>{% trans 'Instagram' %}</th>
+                <td>{{ user.company.instagramadd }}</td>
+            </tr>
+			<tr>
+                <th>{% trans 'Facebook' %}</th>
+                <td>{{ user.company.facebookadd }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{% url 'customer:vendor-update' %}" class="btn btn-primary">{% trans 'Edit company info' %}</a>
+
+{% endblock %}

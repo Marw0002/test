@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{# % load compile_static %}
+
+
+{% block styles %}
+    {% comment %}
+        If you are developing Oscar's CSS, or overriding Oscar's CSS
+        files in your project, then set USE_LESS = True in your
+        settings file. This will enable the on-the-fly less compiler.
+    {% endcomment %}
+    {% if use_less %}
+        <link rel="stylesheet/less" type="text/css" href="{% static "oscar/less/styles.less" %}" />
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{% static "oscar/css/styles.css" %}" />
+    {% endif %}
+    <link rel="stylesheet" href="{% static "oscar/js/bootstrap-datetimepicker/bootstrap-datetimepicker.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "oscar/css/datetimepicker.css" %}" />
+	
+{% endblock %}
+
+{% block layout %}
+	{% block nav_acct_block %}
+    {# Top-horizontal bar with account, notifictions, dashboard links #}
+    {% include "partials/nav_accounts.html" %}
+	{% endblock %}
+    {# Site logo/title, mini-basket, browse dropdown and searchbox #}
+    <header class="header container-fluid" style="padding:0px;">
+
+        {% block navigation %}
+            {% include "partials/nav_primary.html" %}
+        {% endblock %}
+    </header>
+
+    {# Main content of page - other layout templates may override this block #}
+    {% block content_wrapper %}
+        <div class="container-fluid page" style="padding:0;">
+            <div class="page_inner">
+                {% block breadcrumbs %}{% endblock %}
+                {% block header %}
+                    <div class="page-header action">
+                        <h1>{% block headertext %}{% endblock %}</h1>
+                    </div>
+                {% endblock %}
+                {% include "partials/alert_messages.html" %}
+                {% block subnavigation %}{% endblock %}
+                <div class="content">
+                    {% block subheader %}{% endblock subheader %}
+					
+
+
+                    {# Div exists for AJAX updates to entire content section #}
+                    <div id="content_inner" >{% block content %}{% endblock %}</div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% include "partials/footer.html" %}
+	<a href="#" id="return-to-top"><i class="icon-chevron-up"></i></a>
+{% endblock %}
+
+{% block cdn_scripts %}
+  {{ block.super }}
+  {% if use_less and debug %}
+    {# Load the on-the-fly less compiler. Never do this in production. #}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.5.3/less.min.js"></script>
+	<a> load this </a>
+  {% endif %}
+{% endblock %}
+
+{# Local scripts #}
+{% block scripts %}
+    {{ block.super }}
+    <!-- Twitter Bootstrap -->
+	
+    <script type="text/javascript" src="{% static "oscar/js/bootstrap3/bootstrap.min.js" %}"></script>
+    <!-- Oscar -->
+    <script src="{% static "oscar/js/oscar/ui.js" %}" type="text/javascript" charset="utf-8"></script>
+	
+    <script src="{% static "oscar/js/bootstrap-datetimepicker/bootstrap-datetimepicker.js" %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static "oscar/js/bootstrap-datetimepicker/locales/bootstrap-datetimepicker.all.js" %}" type="text/javascript" charset="utf-8"></script>
+	<script src="{% static "oscar/js/isotope/isotope.pkgd.min.js" %}" type="text/javascript"> </script>
+	<script src="{% static "oscar/js/masonry/imagesloaded.pkgd.js" %}" type="text/javascript"> </script>
+	<script src="{% static "oscar/js/img-preview.js" %}" type="text/javascript"></script>
+	<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet"/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="{% static "oscar/js/general.js" %}" type="text/javascript"></script>
+		
+{% endblock %}
+
+{% block extrascripts %}
+    {% include "partials/extrascripts.html" %}
+    {{ block.super }}
+{% endblock %}
+
+{% block onbodyload %}
+    {{ block.super }}
+    oscar.init();
+{% endblock %}

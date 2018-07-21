@@ -1,0 +1,17 @@
+{% extends "customer/baseaccountpage.html" %}
+{% load i18n %}
+
+{% block tabcontent %}
+	<form action=""  method="post" enctype="multipart/form-data">{% csrf_token %}
+		{% for field in form %}
+			{% include 'partials/form_field.html' with field=field style=style %}
+		{% endfor %}
+		<div class="form-group">
+			<div class="{% if style == 'horizontal' %}col-sm-offset-4 col-sm-8{% endif %}">
+				<button class="btn btn-lg btn-primary" type="submit" data-loading-text="{% trans 'Saving...' %}">{% trans "Save" %}</button>
+				{% trans "or" %} <a href="#" onclick="window.history.go(-1);return false" >{% trans "cancel" %}</a>.
+			</div>
+		</div>
+	</form>
+{% endblock tabcontent %}
+

@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% load i18n %}
+
+{% block title %}
+    {{ review.title }} | {% trans "Reviews" %} | {{ company.company_name }} | {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{{ homepage_url }}">{% trans "Home" %}</a>
+        </li>
+        {% with category=product.categories.all.0 %}
+            {% for c in category.get_ancestors_and_self %}
+                <li>
+                    <a href="{{ c.get_absolute_url }}">{{ c.name }}</a>
+                </li>
+            {% endfor %}
+            <li>
+                <a href="{{ company.get_absolute_url }}">{{ company.company_name }}</a>
+            </li>
+            <li>
+                <a href="{% url 'customer:reviews-list' company_slug=company.slug company_pk=company.pk %}">{% trans "Reviews" %}</a>
+            </li>
+        {% endwith %}
+        <li class="active">{{ review.title }}</li>
+    </ul>
+{% endblock %}
+
+{% block headertext %}
+    {% trans "Customer reviews" %}
+{% endblock  %}
+
+{% block content %}
+    <section>
+        {% include 'customer/reviews/review_company.html' %}
+        {% include 'customer/partials/review.html' %}
+    </section>
+{% endblock %}

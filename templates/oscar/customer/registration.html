@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% load i18n %}
+
+{% block title %}
+    {% trans 'Register' %} | {{ block.super }}
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+
+{% block content %}
+	
+
+	<div class="row" style="margin:5vw 0;">
+	
+		<div class="col-sm-3">
+			<button onclick="myFunction()" id="user1but" class="btn btn-lg btn-primary">{% trans 'Register as vendor' %}</button>
+			<button onclick="myFunction()" id="user2but" class="btn btn-lg btn-primary" style="display:none;">{% trans 'Register as home owner' %}</button>
+		</div>
+        <div class="col-sm-6 col-sm login_form" id="user1">
+            <form id="user_form" action="." method="post" class="well" >
+                <h2>{% trans 'Home Owner Register' %}</h2>
+                {% csrf_token %}
+                {% include "partials/form_fields.html" with form=user_form %}
+                <button name="user_submit" type="submit" value="Register" class="btn btn-lg btn-primary" data-loading-text="{% trans "Registering..." %}">{% trans 'Register' %}</button>
+				<p class="new-user"> Already have an account with us? <a href="{% url 'customer:login' %}"> Click Here </a></p>
+            </form>
+        </div>
+	
+	
+        <div class="col-sm-6 col-sm login_form" id="user2" style="display:none;">
+            <form id="vendor_form" action="." method="post" class="well" >
+                <h2>{% trans 'Vendor Register' %}</h2>
+                {% csrf_token %}
+                {% include "partials/form_fields.html" with form=vendor_form %}
+                {% include "partials/form_fields.html" with form=user_form  %}
+                <button name="vendor_submit" type="submit" value="Register" class="btn btn-lg btn-primary" data-loading-text="{% trans "Registering..." %}">{% trans 'Register' %}</button>
+				<p class="new-user"> Already have an account with us? <a href="{% url 'customer:login' %}"> Click Here </a></p>
+            </form>
+        </div>
+    </div> 
+ 
+<script>
+function myFunction() {
+    var x = document.getElementById("user1");
+    var y = document.getElementById("user2");
+	var a = document.getElementById("user1but");
+    var b = document.getElementById("user2but");
+
+    if (x.style.display === "none") {
+        x.style.display = "block";
+        y.style.display = "none";
+		a.style.display ="block";
+		b.style.display = "none";
+    } 
+	else {
+        x.style.display = "none";
+        y.style.display = "block";
+		a.style.display = "none";
+        b.style.display = "block";		
+    }
+}
+</script>
+		
+ 
+{% endblock content %}

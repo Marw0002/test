@@ -1,0 +1,312 @@
+{% extends "layout.html" %}
+
+{% load history_tags %}
+{% load currency_filters %}
+{% load reviews_tags %}
+{% load staticfiles %}
+{% load product_tags %}
+{% load display_tags %}
+{% load thumbnail %}
+{% load i18n %}
+
+{% block title %}
+    {{ company.company_name }} | {{ block.super }}
+{% endblock %}
+
+{% block canonical_url %}{{ product.company.get_absolute_url }}{% endblock %}
+
+{% block header %}
+{% endblock header %}
+
+{% block content %}
+
+<article class="product_page" style="margin-left:0; margin-right:0; margin-top:1%;"><!-- Start of product page -->
+
+    <div class="row" style="margin-left:0;">
+		
+        {% block company_summary %}
+        <div class="col-sm-3 hidden-sm hidden-xs" >
+			<aside class="vendor-prof">
+				{% with company=product.company %}
+					{% if company.company_logo %}
+					<a href="{{ company.get_absolute_url }}">
+						<img class="img-prof-lg" src="{{company.company_logo.url}}">	
+					</a>
+					{% else %}
+					<a href="{{ company.get_absolute_url }}">
+						<img class="img-prof-lg" src="">	
+					</a>
+					{% endif %}
+				
+				<a href="{{ product.company.get_absolute_url }}">
+						<h2 class="h2-sidebar">{{company.company_name}}</h2>
+					</a>
+					<h6>{{company.description}}</h6>
+					<h6>{{company.city.name }},{{company.city.country.code}}</h6>
+								
+								{% block company_review %}
+									{% iffeature "reviews" %}
+									<div class="star-center">
+										{% if company.pricing %}
+										<h6 class="pricing">{{company.pricing}} | 
+										{% endif %}
+										<p class="star-rating {{ company.rating|as_stars }}">
+											<i class="icon-star"></i>
+											<i class="icon-star"></i>
+											<i class="icon-star"></i>
+											<i class="icon-star"></i>
+											<i class="icon-star"></i>
+										</p>
+										    {% trans 'Reviews' %}({{ company.num_approved_reviews }})
+										</h6>
+									</div>
+									{% endiffeature %}
+								{% endblock %}
+								
+					<div class="gallery-contact" style="margin:0; margin-top:1vw;border-top:2px solid; border-top-color: #f5f5bc; padding:1vw;">
+					<h6><span class="glyphicon glyphicon-envelope"></span>   {{company.company_email}}</h6>
+					<h6><span class="glyphicon glyphicon-earphone"></span>   {{company.contact}}</h6>
+					<h4>
+						{% if company.websiteadd %}
+						<a href={{company.websiteadd}} rel="nofollow">
+						<span class="glyphicon glyphicon-home"></i>
+						</a>
+						{% endif %}
+					
+						{% if company.facebookadd %}
+						<a href={{company.facebookadd}} rel="nofollow">
+						<i class="fa fa-facebook-square"></i>
+						</a>
+						{% endif %}
+						{% if company.instagramadd %}
+						<a href={{company.instagramadd}} rel="nofollow">
+						<i class="fa fa-instagram"></i>
+						</a>
+						{% endif %}
+					</h4>
+					<a href="{{ company.get_contact_url }}" >
+					<p class="text-center"><button type="button" class="btn btn-default btn-contact-ven">Contact Vendor</button></p></a>
+					</div>
+				{% endwith %}
+            </aside>
+        </div>
+        {% endblock company_summary %}
+		
+        {% block company_detail %}
+        <div class="col-md-8 company-detail" style="padding:1%; background:white;" >
+            {% comment %}
+            This is a but clunky here.  Better to have some kind of JS-driven dashboard menu that
+            pops out when clicked.  A bit like the Django-Debug-Toolbar button
+            {% endcomment %}
+			
+            {% if user.is_staff %}
+                <a class="pull-right hidden-xs" href="{% url 'dashboard:catalogue-product' pk=product.id %}"><small><i class="icon-edit"></i> {% trans "Edit this product" %}</small></a>
+            {% endif %}	
+			<a href="{{ product.company.get_absolute_url }}" class="hidden-md hidden-lg"><p>View {{product.company.company_name}}'s profile</p></a>
+			
+			<div class="ven-nav primary navbar-static-top navbar-inverse hidden-xs hidden-sm" style="background: white;">
+				
+					<ul class="nav nav-tabs" id="company_info_tabs" style="margin:1%;">   <!-- Marwin -->
+						{% block tabs %}
+						<li class="active"><a href="#all_projects" data-toggle="tab">{% trans 'Projects' %}</a></li>
+						<li><a href="#all_reviews" data-toggle="tab">{% trans 'Reviews' %} ({{ product.company.num_approved_reviews }})</a></li>
+						<li><a href="#company_about" data-toggle="tab">{% trans 'Price List' %}</a></li>
+						{% endblock tabs %}
+								
+								{% comment %}
+									The navigation below is filtered heavily on the product structure.
+									This intentionally is the only place where filtering is done, as
+									deployments are likely to want to override certain aspects of what
+									data is stored on products of a certain structure. This means that
+									only one template block (instead of all affected) has to be altered.
+								{% endcomment %}
+		   
+					</ul>
+				
+			</div>
+			<div class="tab-content" style="margin:2%;background:white;">
+			
+				    {% block projects %}
+					{% if main_project %}
+                        <div class="tab-pane active" id="all_projects">
+							<div class="col-container" >
+								{% with all_images=main_project.images.all %}
+								<div class="project-detail col-md-9">
+									<div id="myCarousel_{{forloop.counter}}" class="carousel slide" data-interval="false" style="margin:0px;";>
+										<div class="carousel-inner">
+												{%for image in all_images %}
+													<div class="item {% if forloop.first %}active{% endif %}"><img src="{{image.original.url}}" alt="{{image.caption}}" style="width:90vw;;"></div>
+												{% endfor %}
+										</div>					
+										<a class="left carousel-control" href="#myCarousel_{{forloop.counter}}" role="button" data-slide="prev"> <span class="glyphicon glyphicon-chevron-left"></span></a> <a class="right carousel-control" href="#myCarousel_{{forloop.counter}}" role="button" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>															
+										</div>
+								</div>
+
+								<div class="col-md-3 hidden-xs hidden-sm" >
+									<ol class="carosel-indicators thumbnail">
+										{% for image in all_images %}
+											<li data-target="#myCarousel_{{forloop.parentloop.counter}}" data-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %};">
+											{% thumbnail image.original "75x75" crop="center" as thumb %}
+											
+												<img src="{{ thumb.url }}" alt="{{ image.caption }}" style="padding-bottom:5%;" />
+											
+											{% endthumbnail %}
+											</li>
+										{% endfor %}
+									</ol>								
+								</div>
+								{% endwith %}
+							</div>
+							<div>
+								{% iffeature "wishlists" %}
+									{% include "catalogue/partials/add_to_wishlist_compact.html" %}
+								{% endiffeature %}
+							</div>
+							
+							<table class="idea-detail-table">
+								
+								<tr>
+									<td class="left-column">Title :</td>
+									<td class="right-column">{{main_project.title}}</td>
+								</tr>
+								<tr>
+									<td class="left-column">Theme :</td>
+									<td class="right-column">{{main_project.theme.all|join:", "}}</td>
+								</tr>
+								
+								<tr>
+									<td class="left-column">Color :</td>
+									<td class="right-column">{{main_project.color.all|join:", "}}</td>
+								</tr>
+								{% if main_project.budget %}
+								<tr>
+									<td class="left-column">Budget :</td>
+									<td class="right-column">{{main_project.budget}}</td>
+								</tr>
+								{% endif %}
+								{% if main_project.description %}
+								<tr>
+									<td class="left-column">Description :</td>
+									<td class="right-column">{{main_project.description|striptags}}</td>
+								</tr>
+								{% endif %}
+							</table>
+							
+                            <div class="table-header nav-ven hidden-xs hidden-sm" >
+                                <ul class="oneline-images scrollbar" id="style-3">
+									<p style="font-size:20px;">Other ideas from vendor</p>
+								{% for project in projects %}
+									<div class="other-idea">
+									{% with image=project.primary_image %}
+									{% thumbnail image.original "100x100" crop="center" as thumb %}
+									<a href="{{ project.get_absolute_url }}">
+									<li class="list-unstyled other-idea-pic"><img src="{{ thumb.url }}" alt="{{ project.get_title }}"></li>
+									</a>
+									<div class="other-idea-child">
+										<p style="margin:0;">{{project.get_title|truncatechars:14}}</p>
+										{% if project.budget %}
+										<p style="margin:0;">{{project.budget}}</p>
+										{% endif %}
+									</div>
+									</div>
+									
+								{% endthumbnail %}
+								{% endwith %}
+								{% endfor %}
+								</ul>
+                            </div>
+                            <div class="hidden-md hidden-lg nav-ven">
+								<p style="font-size:20px;">Other ideas from vendor</p>
+								{% for project in projects %}
+									<div class="other-idea">
+									{% with image=project.primary_image %}
+									{% thumbnail image.original "180x180" crop="center" as thumb %}
+									<a href="{{ project.get_absolute_url }}">
+									<li class="list-unstyled other-idea-pic"><img src="{{ thumb.url }}" alt="{{ project.get_title }}"></li>
+									</a>
+									<div class="other-idea-child">
+										<p style="margin:0;">{{project.get_title|truncatechars:14}}</p>
+										{% if project.budget %}
+										<p style="margin:0;">{{project.budget}}</p>
+										{% endif %}
+									</div>
+									</div>
+								{% endthumbnail %}
+								{% endwith %}
+								{% endfor %}
+								
+                            </div>
+                        </div>
+					{% endif %}
+                    {% endblock projects %}
+					{% block reviews %}
+                        <div class="tab-pane" id="all_reviews">
+                            {% iffeature "reviews" %}
+								{% block vendor_review %}
+									{% include "customer/reviews/partials/review_stars.html" %}
+								{% endblock %}
+							
+						{% block company_review2 %}
+						<section>
+							{% with company=product.company %}
+							<div id="reviews" class="sub-header">
+								{% if company.num_approved_reviews > 3 %}
+									<a href="{% url 'customer:reviews-list' company_slug=company.slug company_pk=company.id %}" class="btn pull-right">{% trans "See all reviews" %}</a>
+								{% endif %}
+							</div>
+
+							{% if company.num_approved_reviews == 0 %}
+								<p>
+									{% if company|is_review_permitted:user %}
+										{% url 'customer:reviews-add' company_slug=company.slug company_pk=company.id as add_review_url %}
+											{% blocktrans %}This vendor does not have any reviews yet -
+											<a href="{{ add_review_url }}#addreview">be the first to write one</a>.
+										{% endblocktrans %}
+									{% else %}
+										{% trans "This vendor does not have any reviews yet" %}.
+									{% endif %}
+								</p>
+							{% else %}
+								<ol class="list-unstyled review-list">
+									{% for review in company.reviews.approved.all|slice:":3" %}
+										<li>
+										{% include 'customer/partials/review.html' %}
+										</li>
+									{% endfor %}
+								</ol>
+							{% endif %}
+							{% endwith %}
+						</section>
+						{% endblock company_review2 %}
+					{% endiffeature %}
+							
+							
+							
+                        </div>
+                    {% endblock reviews %}
+					{% block about %}
+						{% with company=product.company %}
+                        <div class="tab-pane" id="company_about">
+                            <div class="table-header">
+                                <h3>{% trans "Price List" %}</h3>
+								{{company.description}}
+                            </div>  
+                        </div>
+						{% endwith %}
+                    {% endblock about %}
+			
+			
+			</div>
+        </div><!-- /col-sm-6 -->
+        {% endblock company_detail %}
+
+    </div><!-- /row -->
+
+    {% recently_viewed_products current_product=product %}
+
+</article><!-- End of product page -->
+{% endblock content %}
+
+{% block extrascripts %}
+    {{ block.super }}
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "layout_2_col.html" %}
+
+{% load category_tags %}
+{% load product_tags %}
+{% load reviews_tags %}
+{% load display_tags %}
+{% load i18n %}
+
+{% block title %}
+    {% if summary %}{{ summary }} |{% endif %} {{ block.super }}
+{% endblock %}
+
+{% block headertext %}{{ summary }}{% endblock %}
+			 			
+	{% block nav_acct_block %}
+    {% include "partials/nav_accounts_vendor_search.html" %}
+	{% endblock %}			 			
+						
+{% block content_wrapper %}
+
+		<div class="container-fluid page" style="padding:0px;">	
+		
+		{% if companies %}
+				
+					<div class="page_inner" >
+					<ol class="row">
+
+						{% for company in companies %}
+							<div class="gallery">
+								<div class="col-xs-6 col-md-12">
+								{% if company.company_logo %}
+								<a href="{{ company.get_absolute_url }}">
+									<img src="{{company.company_logo.url}}">	
+								</a>
+								{% endif %}
+								</div>
+								<div class="col-xs-6 col-md-12">
+								<a href="{{ company.get_absolute_url }}"><h3>{{company.company_name}}</h3></a>
+								<h6>{{company.description}}</h6>
+								<h6>{{company.city.name }},{{company.city.country.code}}</h6>	
+						        {% block company_review %}
+									{% iffeature "reviews" %}
+									<div class="gallery-star" >
+										<p class="star-rating {{ company.rating|as_stars }}" >
+											<i class="icon-star" /></i>
+											<i class="icon-star"></i>
+											<i class="icon-star"></i>
+											<i class="icon-star"></i>
+											<i class="icon-star" ></i>
+										</p>
+									</div>
+									{% endiffeature %}
+								{% endblock %}
+								</div>
+							</div>								
+						{% endfor %}
+						
+					</ol>
+					{% include "partials/pagination.html" %}
+					</div>
+				
+		{% else %}
+			<p class="nonefound" >{% trans "No vendor found." %}</p>
+		{% endif %}
+		</div>
+{% endblock content_wrapper %}
+
+{% block onbodyload %}
+    {{ block.super }}
+    oscar.search.init();
+{% endblock %}
+	
+	
+	

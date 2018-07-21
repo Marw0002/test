@@ -1,0 +1,15 @@
+{% load thumbnail %}
+<img src="/media/{{record.company_logo}}">
+<a>{{record.company_logo}}</a>
+{% if record.company_logo %}
+	<a> aaa </a>
+    {% with image=record %}
+        {% thumbnail image.company_logo "70x70" upscale=False as thumb %}
+        <a href="{{ image.company_logo }}" >
+            <img src="{{ thumb }}" >
+        </a>
+        {% endthumbnail %}
+    {% endwith %}
+{% else %}
+    —
+{% endif %}

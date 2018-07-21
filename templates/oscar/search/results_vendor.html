@@ -1,0 +1,120 @@
+{% extends "layout_2_col.html" %}
+
+{% load currency_filters %}
+{% load thumbnail %}
+{% load product_tags %}
+{% load reviews_tags %}
+{% load display_tags %}
+{% load i18n %}
+
+{% block title %}
+    "{{ query }}" | {{ block.super }}
+{% endblock %}
+
+
+	{% block nav_acct_block %}
+    {% include "partials/nav_accounts_vendor_search.html" %}
+	{% endblock %}			 
+
+{% block column_left %}
+    {% if has_facets %}
+        <h4>{% trans "Refine your search" %}</h4>
+        <dl>
+            {% for field, data in facet_data.items %}
+                {% if data.results %}
+                    {% include 'search/partials/facet.html' with name=data.name items=data.results %}
+                {% endif %}
+            {% endfor %}
+        </dl>
+    {% endif %}
+{% endblock %}
+
+{% block headertext %}
+    {% blocktrans with q=query %}
+        Vendors matching "{{ q }}"
+    {% endblocktrans %}
+{% endblock %}
+
+{% block content_wrapper %}
+<div class="container-fluid page" style="padding:0px;">	
+<div class="page_inner" style="min-height:1200px;">	
+    <form method="get" action="." class="form-horizontal">
+        {# Render other search params as hidden inputs #}
+        {% for value in selected_facets %}
+            <input type="hidden" name="selected_facets" value="{{ value }}" />
+        {% endfor %}
+        <input type="hidden" name="q" value="{{ search_form2.q.value }}" />
+
+        {% if paginator.count %}
+            {% if paginator.num_pages > 1 %}
+                {% blocktrans with start=page.start_index end=page.end_index num_results=paginator.count %}
+                    Found <strong>{{ num_results }}</strong> results, showing <strong>{{ start }}</strong> to <strong>{{ end }}</strong>.
+                {% endblocktrans %}
+            {% else %}
+                {% blocktrans count num_results=paginator.count %}
+                    Found <strong>{{ num_results }}</strong> result.
+                {% plural %}
+                    Found <strong>{{ num_results }}</strong> results.
+                {% endblocktrans %}
+            {% endif %}
+            <div class="pull-right">
+                {% include "partials/form_field.html" with field=search_form2.sort_by %}
+            </div>
+        {% else %}
+            <p>
+                {% trans "Found <strong>0</strong> results." %}
+                {% if suggestion %}
+                    {% url 'search:search' as search_url %}
+                    {% blocktrans %}
+                        Did you mean <a href="{{ search_url }}?q={{ suggestion }}">"{{ suggestion }}"</a>?
+                    {% endblocktrans %}
+                {% endif %}
+            </p>
+        {% endif %}
+    </form>
+
+    {% if page.object_list %}
+        <section>
+            <div>
+                <ol class="row">
+                    {% for result in page.object_list %}
+						{% with company=result.object %}
+							<div class="gallery">
+								{% if company.company_logo %}
+								<a href="{{ company.get_absolute_url }}">
+									<img class="img-prof-md" src="{{company.company_logo.url}}">	
+								</a>
+								{% endif %}
+								<a href="{{ company.get_absolute_url }}"><h3>{{company.company_name}}</h3></a>
+								<h6>{{company.description}}</h6>
+								<h6>{{company.city.name }},{{company.city.country.code}}</h6>	
+						        {% block company_review %}
+									{% iffeature "reviews" %}
+										<h6 class="pricing">{{company.pricing}} | 
+										<p class="star-rating {{ company.rating|as_stars }}">
+											<i class="icon-star"></i>
+											<i class="icon-star"></i>
+											<i class="icon-star"></i>
+											<i class="icon-star"></i>
+											<i class="icon-star"></i>
+										</p>
+										</h6>
+									{% endiffeature %}
+								{% endblock %}
+								
+							</div>	
+						{% endwith %}
+					{% endfor %}
+                </ol>
+                {% include "partials/pagination.html" with page_obj=page %}
+            </div>
+        </section>
+    {% endif %}
+</div>
+</div>
+{% endblock %}
+
+{% block onbodyload %}
+    {{ block.super }}
+    oscar.search.init();
+{% endblock %}

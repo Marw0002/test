@@ -1,0 +1,31 @@
+{% extends "layout_2_col.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% load thumbnail %}
+{% load sorting_tags %}
+{% load product_tags %}
+{% load display_tags %}
+
+{% block navigation %}
+   {% include "partials/nav_primary.html" with expand_dropdown=1 %}
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block column_left %}
+{% endblock %}
+
+{% block content %}
+    {% if products %}
+		
+		{% block product_list %}
+			{% for product in products %}
+				{% render_product product %}
+			{% endfor %}		     
+		{% endblock product_list %}
+		
+		
+    {% else %}
+        <p>{% trans "No projects found." %}</p>
+    {% endif %}
+{% endblock content %}

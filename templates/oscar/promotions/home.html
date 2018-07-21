@@ -1,0 +1,43 @@
+{% extends "layout_2_col.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% load thumbnail %}
+{% load sorting_tags %}
+{% load render_table from django_tables2 %}
+
+{% block navigation %}
+   {% include "partials/nav_primary.html" with expand_dropdown=1 %}
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block column_left %}
+{% endblock %}
+
+{% block content %}
+    {% if products %}
+        {% block product_list %}
+            <form action="." method="post">
+                {% csrf_token %}
+                {% render_table products %}
+            </form>
+        {% endblock product_list %}
+		{% comment %}
+		{% block marwin_port %}
+			{% for product in products %}
+				<img scr="{{product.image.url}}">{{product}}
+				{% thumbnail product.image "640" as thumbnail %}
+					<li><img src="{{ thumbnail.url }}" width="{{ thumbnail.width}}" height="{{ thumbnail.height }}" alt="{{ picture }}"/></li>
+				{% empty %}
+					<li><img src="http://placekitten.com/640/480" width="640" height="480" alt="{{ picture }}"/></li>
+				{% endthumbnail %}
+				
+			{% endfor %}
+		     
+		{% endblock marwin_port %}
+		
+		{% endcomment %}
+    {% else %}
+        <p>{% trans "No products found." %}</p>
+    {% endif %}
+{% endblock content %}

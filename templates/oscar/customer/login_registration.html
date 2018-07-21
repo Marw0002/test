@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% trans 'Login or register' %} | {{ block.super }}
+{% endblock %}
+
+
+{% block header %}{% endblock %}
+
+{% block content %}
+
+    <div class="row" style="margin:5vw 0;">
+        <div class="col-sm-6 col-sm-offset-3 login_form">
+            <form id="login_form" action="{{ request.get_full_path }}" method="post" class="well" >
+                <h2>{% trans 'Log In' %}</h2>
+                {% csrf_token %}
+                {% include "partials/form_fields.html" with form=login_form %}
+                <p><a href="{% url 'password-reset' %}">{% trans "I've forgotten my password" %}</a></p>
+                <button name="login_submit" type="submit" value="Log In" class="btn btn-lg btn-primary" data-loading-text="{% trans "Logging in..." %}">{% trans 'Log In' %}</button>
+				<p class="new-user"> New User? <a href="{% url 'customer:register' %}"> Click Here </a></p>
+            </form>
+        </div>
+
+    </div>
+
+{% endblock content %}

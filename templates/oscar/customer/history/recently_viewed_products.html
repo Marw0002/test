@@ -1,0 +1,30 @@
+{% load i18n %}
+{% load product_tags %}
+{% load thumbnail %}
+
+{% with products_sliced=products|slice:":6" %}
+    {% if products_sliced %}
+
+		<h2 class="recently">{% trans 'Ideas recently viewed' %}</h2>
+	
+		 <div class="table-header nav-ven" >
+ 
+            <ul class="oneline-images scrollbar" id="style-3">
+
+			{% for project in products_sliced %}
+
+			{% with image=project.primary_image %}
+
+			{% thumbnail image.original "100x100" crop="center" as thumb %}
+
+			<a href="{{ project.get_absolute_url }}">
+			<li><img src="{{ thumb.url }}" alt="{{ project.get_title }}" class="img-recently" ></li>
+			</a>			
+			{% endthumbnail %}
+			{% endwith %}
+			{% endfor %}
+			</ul>
+        </div>
+		
+    {% endif %}
+{% endwith %}

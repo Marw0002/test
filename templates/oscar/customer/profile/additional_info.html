@@ -1,0 +1,38 @@
+{% extends "customer/baseaccountpage.html" %}
+
+{% load i18n %}
+
+{% block tabcontent %}
+
+    <table class="table table-striped table-bordered">
+        <tbody>
+						{% for question in questions %}
+			<tr>
+                <th>Question</th>
+                <td>{{ question.question }}</td>
+            </tr>
+			<tr>
+                <th>Answer</th>
+                <td>{{ question.answer }}</td>
+            </tr>
+			
+			{% endfor %}
+
+			
+            {% block profile_fields %}
+                {% for field in profile_fields %}
+                    <tr>
+                        <th>{{ field.name }}</th>
+                        <td>{{ field.value|default:"-" }}</td>
+                    </tr>
+                {% endfor %}
+            {% endblock %}
+
+        </tbody>
+    </table>
+
+	 <a href="{% url 'customer:vendor-update2' %}" class="btn btn-primary">{% trans 'Edit additional info' %}</a>	
+	
+    <a href="{% url 'customer:additional-info-update'%}" class="btn btn-primary">{% trans 'Edit additional info' %}</a>
+
+{% endblock %}
